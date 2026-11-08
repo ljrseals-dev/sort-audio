@@ -1,0 +1,73 @@
+# Audio Sample Quality Organizer - Configuration
+# Based on IASA TC-03 / EBU R128 broadcast standards
+
+# Path to scan (leave empty to use --input CLI arg)
+input_dir: ""
+
+# Path where organized output folders will be created
+output_dir: "./organized_samples"
+
+# Quality thresholds per metric
+thresholds:
+  sample_rate:
+    pass: 48000      # Hz  - broadcast standard
+    marginal: 44100  # Hz  - CD quality minimum
+  bit_depth:
+    pass: 24         # bits
+    marginal: 16     # bits
+  bitrate:
+    pass: 192        # kbps (for lossy formats)
+    marginal: 128    # kbps
+  channels:
+    allowed: [1, 2]  # mono or stereo
+
+# Overall quality grade logic:
+#   PASS     -> all metrics meet "pass"
+#   MARGINAL -> all metrics meet at least "marginal", at least one below "pass"
+#   FAIL     -> any metric below "marginal"
+#
+# NOTE: bit_depth is only evaluated for lossless PCM formats (wav/aiff/flac).
+# Lossy formats (mp3/aac/m4a/ogg/opus) have no meaningful bit depth, so that
+# metric is skipped for them and grading falls back to bitrate + sample rate
+# + channels. See quality.py.
+
+# Rename template tokens:
+#   {index}   - sequential number (zero padded, 3 digits)
+#   {name}    - original filename without extension
+#   {sr}      - sample rate in kHz
+#   {bd}      - bit depth
+#   {br}      - bitrate in kbps
+#   {grade}   - PASS / MARGINAL / FAIL
+#   {ext}     - original extension (without dot)
+rename_template: "{index}_{name}_{sr}kHz_{bd}bit_{br}kbps_{grade}.{ext}"
+
+# Folder names for each grade (color-coded via desktop.ini)
+folders:
+  PASS: "01_PASS"
+  MARGINAL: "02_MARGINAL"
+  FAIL: "03_FAIL"
+
+# Folder icon resource IDs from imageres.dll (Windows)
+#   -3 = yellow, -2 = blue, -4 = green, -5 = red (varies by Windows build)
+folder_icons:
+  PASS: "-4"       # green
+  MARGINAL: "-3"   # yellow
+  FAIL: "-5"       # red
+
+# Supported file extensions
+supported_extensions:
+  - ".wav"
+  - ".mp3"
+  - ".flac"
+  - ".aiff"
+  - ".aif"
+  - ".m4a"
+  - ".aac"
+  - ".ogg"
+  - ".opus"
+
+# Copy files instead of moving (true = non-destructive)
+copy_instead_of_move: true
+
+# Skip files that already match the rename template
+skip_already_renamed: false
